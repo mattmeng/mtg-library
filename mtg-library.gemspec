@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path( '../lib', __FILE__ )
 $LOAD_PATH.unshift( lib ) unless $LOAD_PATH.include?( lib )
-require 'mtg/library/version'
+require 'mtg/constants'
 
 Gem::Specification.new do |spec|
   spec.name          = "mtg-library"
-  spec.version       = Mtg::Library::VERSION
+  spec.version       = Mtg::VERSION
   spec.authors       = ["Matt Meng"]
   spec.email         = ["mengmatt@gmail.com"]
 
