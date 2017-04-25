@@ -27,4 +27,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "sequel", "~> 4.45"
   spec.add_dependency "mtg_sdk", "~> 3.1"
+  spec.add_dependency "tty-cursor", "~> 0.4"
+  spec.add_dependency "tty-prompt", "~> 0.12"
 end

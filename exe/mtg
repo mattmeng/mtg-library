@@ -1,4 +1,14 @@
 require 'mtg/library'
+require 'tty/cursor'
+require 'tty/prompt'
 
 database = Mtg::Database.new( 'test.db' )
 library = Mtg::Library.new( database )
+
+CURSOR = TTY::Cursor
+PROMPT = TTY::Prompt.new
+
+def screen( lines )
+  yield
+  print CURSOR.clear_lines( lines + 1, :up )
+end
