@@ -2,8 +2,10 @@ require 'mtg/database'
 
 module Mtg
   class Library
-    def initialize( database_path )
-      @db = Mtg::Database.new( database_path )
+    def initialize( db )
+      raise ArgumentError, "db provided was not an Mtg::Database object." unless db.class == Mtg::Database
+
+      @db = db
     end
   end
 end

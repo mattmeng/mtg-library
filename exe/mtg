@@ -1,3 +1,4 @@
 require 'mtg/library'
 
-library = Mtg::Library.new( 'test.db' )
+database = Mtg::Database.new( 'test.db' )
+library = Mtg::Library.new( database )
