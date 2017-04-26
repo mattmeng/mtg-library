@@ -6,7 +6,7 @@ command :show do |c|
       card = get_card( name )
 
       if card
-        puts "#{card.id} - #{card.name} - #{card.standard_quantity}"
+        display_card( card )
       else
         exit_now!( "No cards found." )
       end

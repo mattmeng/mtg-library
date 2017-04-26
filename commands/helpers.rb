@@ -58,4 +58,23 @@ end
 
 def display_card( card )
   height, width = TTY::Screen.size
+
+  case card.rarity
+  when "Uncommon"
+    bg_bright = :darkslategray
+  when "Common"
+    bg_bright = :lightskyblue
+  when "Rare"
+    bg_bright = :gold
+  when "Mythic Rare"
+    bg = [255, 89, 0]
+    bg_bright = [255, 69, 0]
+    fg = :black
+  else
+    bg_bright = :dodgerblue
+  end
+
+  puts ' '.background( bg_bright ).bright +
+    "  #{card.name}".color( fg ).background( bg ) +
+    (' ' * (width - 3 - card.name.size)).background( bg )
 end

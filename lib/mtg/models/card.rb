@@ -10,6 +10,10 @@ module Mtg
       return standard_quantity + foil_quantity
     end
 
+    def method_missing( method, *args, &block )
+      return info.send( method, *args, &block ) if info
+    end
+
     def self.find_all_by_name( name )
       yield( :searching ) if block_given?
       card_infos = MTG::Card.where( name: name ).where( orderBy: 'name' ).all
