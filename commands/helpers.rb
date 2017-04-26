@@ -3,6 +3,50 @@ def screen( lines )
   print CURSOR.clear_lines( lines + 1, :up )
 end
 
+def rarity_colors( rarity )
+  case rarity
+  when "Common"
+    bg_bold = :darkslategray
+  when "Uncommon"
+    bg = :lightskyblue
+    bg_bold = :lightskyblue
+    fg_header = :black
+  when "Rare"
+    bg = :gold
+    bg_bold = :goldenrod
+    fg_header = :black
+  when "Mythic Rare"
+    bg = [255, 89, 0]
+    bg_bold = :orangered
+    fg_header = :black
+  else
+    bg_bold = :dodgerblue
+  end
+
+  return bg, bg_bold, fg_header
+end
+
+def rarity_label( rarity, short_hand: true )
+  rtvnal = rarity.clone
+
+  if short_hand
+    case rarity
+    when "Common"
+      rtnval = "C"
+    when "Uncommon"
+      rtnval = "U"
+    when "Rare"
+      rtnval = "R"
+    when "Mythic Rare"
+      rtnval = "MR"
+    else
+      rtnval = "S"
+    end
+  end
+
+  return rtnval.color( rarity_colors( rarity )[1] )
+end
+
 def get_card( name )
   spinner = TTY::Spinner.new(
     ":spinner Searching for cards...",
@@ -44,7 +88,7 @@ def get_card( name )
         card_id = PROMPT.select(
           "Which card did you mean?",
           Hash[cards.map {|c| [
-            "#{c.name} (#{c.info.source || c.info.set_name})",
+            "#{c.name} (#{c.source || c.set_name} - #{rarity_label( c.rarity, short_hand: true )})",
             c.id]}
           ]
         )
@@ -60,21 +104,25 @@ def display_card( card )
   height, width = TTY::Screen.size
 
   case card.rarity
-  when "Uncommon"
-    bg_bright = :darkslategray
   when "Common"
-    bg_bright = :lightskyblue
+    bg_bold = :darkslategray
+  when "Uncommon"
+    bg = :lightskyblue
+    bg_bold = :lightskyblue
+    fg_header = :black
   when "Rare"
-    bg_bright = :gold
+    bg = :gold
+    bg_bold = :goldenrod
+    fg_header = :black
   when "Mythic Rare"
     bg = [255, 89, 0]
-    bg_bright = [255, 69, 0]
-    fg = :black
+    bg_bold = :orangered
+    fg_header = :black
   else
-    bg_bright = :dodgerblue
+    bg_bold = :dodgerblue
   end
 
-  puts ' '.background( bg_bright ).bright +
-    "  #{card.name}".color( fg ).background( bg ) +
-    (' ' * (width - 3 - card.name.size)).background( bg )
+  puts ' '.background( bg_bold ).bright +
+    " #{card.name}".color( fg_header ).background( bg ) +
+    (' ' * (width - 2 - card.name.size)).background( bg )
 end
