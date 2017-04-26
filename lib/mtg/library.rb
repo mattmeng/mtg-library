@@ -1,4 +1,5 @@
 require 'mtg/database'
+require 'mtg_sdk'
 
 module Mtg
   class Library

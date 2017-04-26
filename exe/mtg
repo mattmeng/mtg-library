@@ -1,14 +1,29 @@
 require 'mtg/library'
 require 'tty/cursor'
 require 'tty/prompt'
+require 'tty/spinner'
+require 'tty/progressbar'
+require 'pastel'
+require 'gli'
 
-database = Mtg::Database.new( 'test.db' )
-library = Mtg::Library.new( database )
+include GLI::App
 
 CURSOR = TTY::Cursor
 PROMPT = TTY::Prompt.new
+PASTEL = Pastel.new
 
 def screen( lines )
   yield
   print CURSOR.clear_lines( lines + 1, :up )
 end
+
+pre do |gopts, command, opts, args|
+  database_path = ENV.fetch( "MTG_LIBRARY_PATH" ) { File.join( ENV["HOME"], "mtg_library.db" ) }
+
+  gopts[:database] = Mtg::Database.new( database_path )
+  gopts[:library] = Mtg::Library.new( gopts[:database] )
+end
+
+require_relative "../commands/show"
+
+exit run( ARGV )
