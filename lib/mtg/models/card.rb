@@ -12,7 +12,7 @@ module Mtg
 
     def self.find_all_by_name( name )
       yield( :searching ) if block_given?
-      card_infos = MTG::Card.where( name: name ).all
+      card_infos = MTG::Card.where( name: name ).where( orderBy: 'name' ).all
 
       # Lookup or insert into database if necessary.
       cards = []

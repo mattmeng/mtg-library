@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "tty-prompt", "~> 0.12"
   spec.add_dependency "tty-spinner", "~> 0.4"
   spec.add_dependency "tty-progressbar", "~> 0.11"
-  spec.add_dependency "pastel", "~> 0.7"
+  spec.add_dependency "tty-screen", "~> 0.5"
+  spec.add_dependency "rainbow", "~> 2.2"
   spec.add_dependency "gli", "~> 2.16"
 end
