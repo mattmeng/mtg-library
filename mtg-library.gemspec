@@ -34,4 +34,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "tty-screen", "~> 0.5"
   spec.add_dependency "rainbow", "~> 2.2"
   spec.add_dependency "gli", "~> 2.16"
+  spec.add_dependency "word_wrap", "~> 1.0"
 end
