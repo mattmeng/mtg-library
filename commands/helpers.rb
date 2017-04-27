@@ -6,11 +6,16 @@ def screen( lines )
   print CURSOR.clear_lines( lines + 1, :up )
 end
 
-# 🌣 ☼ 🌞 ☀
-# 💧 🌢
-# 💀 ☠ 🕱
-# 🔥
-# 🌲 🌳 🌴 🎄 𐇲 ⸙
+def mana( text )
+  text.gsub!( /{(\d+)}/, '\1' ) # Colorless
+  text.gsub!( /{W}/, '☼' ) # White
+  text.gsub!( /{U}/, '💧' ) # Blue
+  text.gsub!( /{B}/, '💀' ) # Black
+  text.gsub!( /{R}/, '🔥' ) # Red
+  text.gsub!( /{G}/, '🌳' ) # Green
+
+  return text
+end
 
 def rarity_colors( rarity )
   case rarity
@@ -123,7 +128,7 @@ def display_card( card )
     " #{card.name}".color( fg_header ).background( bg ) +
     (' ' * (width - 2 - card.name.size)).background( bg )
   puts '┃'.color( bg_bold )
-  puts '┃ Mana Cost '.color( bg_bold ) + card.mana_cost
+  puts '┃ Mana Cost '.color( bg_bold ) + mana( card.mana_cost )
   puts '┃ Image URL '.color( bg_bold ) + card.image_url
   puts '┃ Type      '.color( bg_bold ) + card.type
   puts '┃ Rarity    '.color( bg_bold ) + card.rarity.color( bg_bold ).bold
@@ -134,7 +139,7 @@ def display_card( card )
   puts
   puts 'Text'.color( :silver ).bold
   puts
-  card.text.split( /\n/ ).each_with_index do |text, index|
+  mana( card.text ).split( /\n/ ).each_with_index do |text, index|
     puts '┃'.color( :tan ) unless index == 0
     text.fit( 60 ).split( /\n/ ).each do |line|
       puts "┃ #{line}".color( :tan )
@@ -147,7 +152,7 @@ def display_card( card )
     puts
     card.rulings.each_with_index do |ruling, index|
       puts '┃'.color( :dimgray ) unless index == 0
-      "#{ruling.date}: #{ruling.text}".fit( 60 ).split( /\n/ ).each do |line|
+      "#{ruling.date}: #{mana( ruling.text )}".fit( 60 ).split( /\n/ ).each do |line|
         puts "┃ #{line}".color( :dimgray )
       end
     end
