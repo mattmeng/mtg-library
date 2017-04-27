@@ -6,13 +6,15 @@ def screen( lines )
   print CURSOR.clear_lines( lines + 1, :up )
 end
 
-def mana( text )
+def symbols( text )
+  text = text.clone
   text.gsub!( /{(\d+)}/, '\1' ) # Colorless
   text.gsub!( /{W}/, '☼' ) # White
   text.gsub!( /{U}/, '💧' ) # Blue
   text.gsub!( /{B}/, '💀' ) # Black
   text.gsub!( /{R}/, '🔥' ) # Red
   text.gsub!( /{G}/, '🌳' ) # Green
+  text.gsub!( /{T}/, '↻' ) # Tap
 
   return text
 end
@@ -128,7 +130,7 @@ def display_card( card )
     " #{card.name}".color( fg_header ).background( bg ) +
     (' ' * (width - 2 - card.name.size)).background( bg )
   puts '┃'.color( bg_bold )
-  puts '┃ Mana Cost '.color( bg_bold ) + mana( card.mana_cost )
+  puts '┃ Mana Cost '.color( bg_bold ) + symbols( card.mana_cost )
   puts '┃ Image URL '.color( bg_bold ) + card.image_url
   puts '┃ Type      '.color( bg_bold ) + card.type
   puts '┃ Rarity    '.color( bg_bold ) + card.rarity.color( bg_bold ).bold
@@ -139,7 +141,7 @@ def display_card( card )
   puts
   puts 'Text'.color( :silver ).bold
   puts
-  mana( card.text ).split( /\n/ ).each_with_index do |text, index|
+  symbols( card.text ).split( /\n/ ).each_with_index do |text, index|
     puts '┃'.color( :tan ) unless index == 0
     text.fit( 60 ).split( /\n/ ).each do |line|
       puts "┃ #{line}".color( :tan )
@@ -152,7 +154,7 @@ def display_card( card )
     puts
     card.rulings.each_with_index do |ruling, index|
       puts '┃'.color( :dimgray ) unless index == 0
-      "#{ruling.date}: #{mana( ruling.text )}".fit( 60 ).split( /\n/ ).each do |line|
+      "#{ruling.date}: #{symbols( ruling.text )}".fit( 60 ).split( /\n/ ).each do |line|
         puts "┃ #{line}".color( :dimgray )
       end
     end
