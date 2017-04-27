@@ -15,21 +15,25 @@ end
 def rarity_colors( rarity )
   case rarity
   when "Common"
+    bg = :darkgray
     bg_bold = :darkslategray
+    fg_header = :black
   when "Uncommon"
-    bg = :lightskyblue
-    bg_bold = :lightskyblue
+    bg = :paleturquoise
+    bg_bold = :skyblue
     fg_header = :black
   when "Rare"
-    bg = :gold
-    bg_bold = :goldenrod
+    bg = :lightgoldenrod
+    bg_bold = :gold
     fg_header = :black
   when "Mythic Rare"
     bg = [255, 89, 0]
     bg_bold = :orangered
     fg_header = :black
   else
+    bg = :steelblue
     bg_bold = :dodgerblue
+    fg_header = :black
   end
 
   return bg, bg_bold, fg_header
@@ -125,21 +129,21 @@ def display_card( card )
   puts '┃ Rarity    '.color( bg_bold ) + card.rarity.color( bg_bold ).bold
   puts '┃ Set       '.color( bg_bold ) + (card.source || card.set_name)
   puts '┃ P/T       '.color( bg_bold ) + "#{card.power}/#{card.toughness}" if card.types.include?( "Creature" )
-  puts '┃ Loyalty   '.color( bg_bold ) + card.loyalty if card.types.include?( "Planeswalker" )
+  puts '┃ Loyalty   '.color( bg_bold ) + card.loyalty.to_s if card.types.include?( "Planeswalker" )
 
   puts
-  puts 'Text'.color( :white ).bold
+  puts 'Text'.color( :silver ).bold
   puts
   card.text.split( /\n/ ).each_with_index do |text, index|
-    puts '┃'.color( :dimgray ) unless index == 0
+    puts '┃'.color( :tan ) unless index == 0
     text.fit( 60 ).split( /\n/ ).each do |line|
-      puts "┃ #{line}".color( :dimgray )
+      puts "┃ #{line}".color( :tan )
     end
   end
 
   if card.rulings
     puts
-    puts 'Rulings'.color( :white ).bold
+    puts 'Rulings'.color( :silver ).bold
     puts
     card.rulings.each_with_index do |ruling, index|
       puts '┃'.color( :dimgray ) unless index == 0
@@ -152,7 +156,7 @@ def display_card( card )
   puts
   puts 'Metadata'.color( :white ).bold
   puts
-  puts '┃ ID                '.color( bg_bold ) + card.id
-  puts '┃ Standard Quantity '.color( bg_bold ) + card.standard_quantity.to_s
-  puts '┃ Foil Quantity     '.color( bg_bold ) + card.foil_quantity.to_s
+  puts '┃ ID                '.color( :palegreen ) + card.id
+  puts '┃ Standard Quantity '.color( :palegreen ) + card.standard_quantity.to_s
+  puts '┃ Foil Quantity     '.color( :palegreen ) + card.foil_quantity.to_s
 end
