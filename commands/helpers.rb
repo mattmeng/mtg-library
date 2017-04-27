@@ -136,4 +136,23 @@ def display_card( card )
       puts "┃ #{line}".color( :dimgray )
     end
   end
+
+  if card.rulings
+    puts
+    puts 'Rulings'.color( :white ).bold
+    puts
+    card.rulings.each_with_index do |ruling, index|
+      puts '┃'.color( :dimgray ) unless index == 0
+      "#{ruling.date}: #{ruling.text}".fit( 60 ).split( /\n/ ).each do |line|
+        puts "┃ #{line}".color( :dimgray )
+      end
+    end
+  end
+
+  puts
+  puts 'Metadata'.color( :white ).bold
+  puts
+  puts '┃ ID                '.color( bg_bold ) + card.id
+  puts '┃ Standard Quantity '.color( bg_bold ) + card.standard_quantity.to_s
+  puts '┃ Foil Quantity     '.color( bg_bold ) + card.foil_quantity.to_s
 end
