@@ -8,6 +8,11 @@ command :show do |c|
 
       if card
         display_card( card )
+        PROMPT.expand( 'Options:', [
+          {key: 'a', name: 'Add cards', value: :add},
+          {key: 'r', name: 'Remove cards', value: :remove},
+          {key: 'q', name: 'Quit', value: :quit}
+        ] )
       else
         exit_now!( Paint["No cards found.", :red] )
       end
