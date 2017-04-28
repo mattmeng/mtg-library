@@ -85,9 +85,12 @@ def get_card( name )
   )
   progress = nil
   cards = []
-  card = nil
 
-  if name
+  spinner.auto_spin
+  card = Mtg::Card.find_by_id( name )
+  spinner.stop
+
+  if !card && name
     screen( 1 ) do
       cards = Mtg::Card.find_all_by_name( name ) do |status, index, count|
         case status

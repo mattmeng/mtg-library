@@ -1,17 +1,18 @@
+desc 'Show card details including card data, text, rulings and metadata.'
 command :show do |c|
   c.action do |gopts, opts, args|
-    name = args.join( ' ' )
+    identifier = args.join( ' ' )
 
-    if name
-      card = get_card( name )
+    if identifier
+      card = get_card( identifier )
 
       if card
         display_card( card )
       else
-        exit_now!( "No cards found." )
+        exit_now!( Paint["No cards found.", :red] )
       end
     else
-      PROMPT.warn( "No card name given." )
+      PROMPT.warn( "No card id or name given." )
     end
   end
 end

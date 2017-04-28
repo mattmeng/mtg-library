@@ -14,6 +14,19 @@ module Mtg
       return info.send( method, *args, &block ) if info
     end
 
+    def self.find_by_id( id )
+      card = Card.find( id: id )
+      return nil unless card
+
+      cards = MTG::Card.where( name: card.name ).all
+
+      begin
+        card.info = cards.shift
+      end until card.info.id == card.id
+
+      return card
+    end
+
     def self.find_all_by_name( name )
       yield( :searching ) if block_given?
       card_infos = MTG::Card.where( name: name ).where( orderBy: 'name' ).all
