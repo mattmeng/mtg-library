@@ -4,7 +4,6 @@ require 'tty/prompt'
 require 'tty/spinner'
 require 'tty/progressbar'
 require 'tty/screen'
-require 'rainbow/ext/string'
 require 'gli'
 
 include GLI::App
