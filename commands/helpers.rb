@@ -20,60 +20,49 @@ def symbols( text )
   return text
 end
 
-def rarity_colors( rarity )
-  case rarity
-  when "Common"
+def rarity_colors( card )
+  if card.common?
     return ['696969', '808080']
-  when "Uncommon"
+  elsif card.uncommon?
     return ['778899', 'C0C0C0']
-  when "Rare"
+  elsif card.rare?
     return ['FFAF00', 'FFDD00']
-  when "Mythic Rare"
+  elsif card.mythic_rare?
     return ['FF4500', 'FF8C00']
   else
     return ['4169E1', '87CEFA']
   end
 end
 
-def rarity_label( rarity, short_hand: true )
-  rtvnal = rarity.clone
-
-  if short_hand
-    case rarity
-    when "Common"
-      rtnval = "C"
-    when "Uncommon"
-      rtnval = "U"
-    when "Rare"
-      rtnval = "R"
-    when "Mythic Rare"
-      rtnval = "MR"
-    else
-      rtnval = "S"
-    end
+def rarity_label( card, short_hand: true )
+  if card.common?
+    rtnval = 'Common'
+    rtnval = 'C' if short_hand
+  elsif card.uncommon?
+    rtnval = 'Uncommon'
+    rtnval = 'U' if short_hand
+  elsif card.rare?
+    rtnval = 'Rare'
+    rtnval = 'R' if short_hand
+  elsif card.mythic_rare?
+    rtnval = 'Mythic Rare'
+    rtnval = 'MR' if short_hand
+  else
+    rtnval = 'Special'
+    rtnval = 'S'
   end
 
-  return Paint[rtnval, rarity_colors( rarity )[0]]
+  return Paint[rtnval, rarity_colors( card )[0]]
 end
 
-def card_colors( colors )
-  return ['696969', 'A9A9A9', '000000'] unless colors
-
-  colors = [colors] if colors.class == String
-  return ['DAA520', 'EEB934', '000000'] if colors.count > 1
-
-  case colors[0]
-  when 'White', 'W'
-    return ['B4B4B4', 'FFFFFF', '000000']
-  when 'Blue', 'U'
-    return ['1E90FF', '6495ED', '000000']
-  when 'Black', 'B'
-    return ['333333', '555555', 'FFFFFF']
-  when 'Red', 'R'
-    return ['B40000', 'FF5050', '000000']
-  when 'Green', 'G'
-    return ['006400', '329632', '000000']
-  end
+def card_colors( card )
+  return ['696969', 'A9A9A9', '000000'] if card.colorless?
+  return ['DAA520', 'EEB934', '000000'] if card.multi_colored?
+  return ['B4B4B4', 'FFFFFF', '000000'] if card.white?
+  return ['1E90FF', '6495ED', '000000'] if card.blue?
+  return ['333333', '555555', 'FFFFFF'] if card.black?
+  return ['B40000', 'FF5050', '000000'] if card.red?
+  return ['006400', '329632', '000000'] if card.green?
 end
 
 def get_card( name )
@@ -120,7 +109,7 @@ def get_card( name )
         card_id = PROMPT.select(
           "Which card did you mean?",
           Hash[cards.map {|c| [
-            "#{c.name} (#{c.source || c.set_name} - #{Paint[rarity_label( c.rarity, short_hand: true ), :bold]})",
+            "#{c.name} (#{c.source || c.set_name} - #{Paint[rarity_label( c, short_hand: true ), :bold]})",
             c.id]}
           ]
         )
@@ -132,51 +121,71 @@ def get_card( name )
   return card
 end
 
-def display_card( card )
+def header1( value, primary_color, accent_color, text_color )
   height, width = TTY::Screen.size
 
-  primary, accent, text = card_colors( card.colors )
-  r_primary, r_accent, r_text = rarity_colors( card.rarity )
+  puts
+  puts Paint[' ', nil, primary_color] +
+    Paint[" #{value}", text_color, accent_color, :bold] +
+    Paint[(' ' * (width - 2 - value.size)), nil, accent_color]
+  puts Paint['┃', primary_color]
+end
 
+def header2( value )
   puts
-  puts Paint[' ', nil, primary, :bright] +
-    Paint[" #{card.name}", text, accent, :bold] +
-    Paint[(' ' * (width - 2 - card.name.size)), nil, accent]
-  puts Paint['┃', primary]
-  puts Paint['┃ Mana Cost ', primary] + symbols( card.mana_cost )
-  puts Paint['┃ Image URL ', primary] + card.image_url
-  puts Paint['┃ Type      ', primary] + card.type
-  puts Paint['┃ Rarity    ', primary] + Paint[card.rarity, r_primary, :bold]
-  puts Paint['┃ Set       ', primary] + (card.source || card.set_name)
-  puts Paint['┃ P/T       ', primary] + "#{card.power}/#{card.toughness}" if card.types.include?( "Creature" )
-  puts Paint['┃ Loyalty   ', primary] + card.loyalty.to_s if card.types.include?( "Planeswalker" )
+  puts Paint[value, 'DCDCDC', :bold]
+  puts
+end
 
-  puts
-  puts Paint['Text', 'DCDCDC', :bold]
-  puts
-  symbols( card.text ).split( /\n/ ).each_with_index do |text, index|
-    puts Paint['┃', 'D2B48C'] unless index == 0
-    text.fit( 60 ).split( /\n/ ).each do |line|
-      puts Paint["┃ #{line}", 'D2B48C']
+def data( header, value, primary_color )
+  puts Paint["┃ #{header + ' ' if header}", primary_color] + value
+end
+
+def text( value, primary_color )
+  puts Paint["┃ #{value}", primary_color]
+end
+
+def display_card( card )
+  primary, accent, text_color = card_colors( card )
+  r_primary, r_accent, r_text = rarity_colors( card )
+
+  header1( card.name, primary, accent, text_color )
+  data( 'Mana Cost'.rjust( 10 ), symbols( card.mana_cost ), primary )
+  data( 'Image URL'.rjust( 10 ), card.image_url, primary )
+  data( 'Type'.rjust( 10 ), card.type, primary )
+  data( 'Rarity'.rjust( 10 ), Paint[card.rarity, r_primary, :bold], primary )
+  data( 'Set'.rjust( 10 ), (card.source || card.set_name), primary )
+  data( 'P/T'.rjust( 10 ), "#{card.power}/#{card.toughness}", primary ) if card.types.include?( "Creature" )
+  data( 'Loyalty'.rjust( 10 ), card.loyalty.to_s, primary ) if card.types.include?( "Planeswalker" )
+
+  header2( 'Text' )
+  symbols( card.text ).split( /\n/ ).each_with_index do |line, index|
+    text( '', 'D2B48C' ) unless index == 0
+    line.fit( 60 ).split( /\n/ ).each do |line|
+      text( line, 'D2B48C' )
     end
   end
 
   if card.rulings
-    puts
-    puts Paint['Rulings', 'DCDCDC', :bold]
-    puts
+    header2( 'Rulings' )
     card.rulings.each_with_index do |ruling, index|
-      puts Paint['┃', '696969'] unless index == 0
+      text( '', '696969' ) unless index == 0
       "#{ruling.date}: #{symbols( ruling.text )}".fit( 60 ).split( /\n/ ).each do |line|
-        puts Paint["┃ #{line}", '696969']
+        text( line, '696969' )
       end
     end
   end
 
+  header2( 'Metadata' )
+  data( 'ID'.rjust( 18 ), card.id, '90EE90' )
+  data( 'Standard Quantity'.rjust( 18 ), card.standard_quantity.to_s, '90EE90' )
+  data( 'Foil Quantity'.rjust( 18 ), card.foil_quantity.to_s, '90EE90' )
+  data( 'Standard Price'.rjust( 18 ), (card.standard_price || 'Not Found').to_s, '90EE90' )
+  data( 'Foil Price'.rjust( 18 ), (card.foil_price || 'Not Found').to_s, '90EE90' )
+
   puts
-  puts Paint['Metadata', :white, :bold]
-  puts
-  puts Paint['┃ ID                ', '90EE90'] + card.id
-  puts Paint['┃ Standard Quantity ', '90EE90'] + card.standard_quantity.to_s
-  puts Paint['┃ Foil Quantity     ', '90EE90'] + card.foil_quantity.to_s
+end
+
+def add_cards( card )
+
 end

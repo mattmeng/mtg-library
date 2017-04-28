@@ -1,4 +1,5 @@
 require 'mtg_sdk'
+require 'active_support/inflector'
 
 module Mtg
   class Card < Sequel::Model
@@ -8,6 +9,69 @@ module Mtg
 
     def quantity
       return standard_quantity + foil_quantity
+    end
+
+    def white?
+      return info.colors.include?( 'White' )
+    end
+
+    def blue?
+      return info.colors.include?( 'Blue' )
+    end
+
+    def black?
+      return info.colors.include?( 'Black' )
+    end
+
+    def red?
+      return info.colors.include?( 'Red' )
+    end
+
+    def green?
+      return info.colors.include?( 'Green' )
+    end
+
+    def multi_colored?
+      return info.colors.count > 1
+    end
+
+    def colorless?
+      return info.colors.nil? || info.colors.empty?
+    end
+
+    def common?
+      return info.rarity == 'Common'
+    end
+
+    def uncommon?
+      return info.rarity == 'Uncommon'
+    end
+
+    def rare?
+      return info.rarity == 'Rare'
+    end
+
+    def mythic_rare?
+      return info.rarity == 'Mythic Rare'
+    end
+
+    def special?
+      return info.rarity == 'Special'
+    end
+
+    def standard_price
+      return @standard_price
+    end
+
+    def foil_price
+      return @foil_price
+    end
+
+    def get_prices
+      return unless info
+
+      set = info.set_name.gsub( /[^\w\s]/, '' ).parameterize
+      card_name = name.gsub( /[^\w\s]/, '' ).parameterize
     end
 
     def method_missing( method, *args, &block )
