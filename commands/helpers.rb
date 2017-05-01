@@ -178,6 +178,7 @@ def display_card( card )
 
   header2( 'Metadata' )
   data( 'ID'.rjust( 18 ), card.id, '90EE90' )
+  data( 'Multiverse ID'.rjust( 18 ), card.multiverse_id.to_s, '90EE90' )
   data( 'Standard Quantity'.rjust( 18 ), card.standard_quantity.to_s, '90EE90' )
   data( 'Foil Quantity'.rjust( 18 ), card.foil_quantity.to_s, '90EE90' )
   data( 'Standard Price'.rjust( 18 ), (card.standard_price || 'Not Found').to_s, '90EE90' )
