@@ -188,7 +188,9 @@ def display_card( card )
     'Multiverse ID' => card.multiverse_id,
     'Standard Quantity' => card.standard_quantity,
     'Foil Quantity' => card.foil_quantity,
-    'Standard Price' => (card.standard_price || 'Not Found'),
+    'Low Price' => (card.low_price || 'Not Found'),
+    'Average Price' => (card.average_price || 'Not Found'),
+    'High Price' => (card.high_price || 'Not Found'),
     'Foil Price' => (card.foil_price || 'Not Found')
   } )
 

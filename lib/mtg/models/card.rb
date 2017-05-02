@@ -1,5 +1,6 @@
 require 'mtg_sdk'
-require 'active_support/inflector'
+require 'active_support/core_ext/integer'
+require 'mtg/stocks'
 
 module Mtg
   class Card < Sequel::Model
@@ -59,19 +60,16 @@ module Mtg
       return info.rarity == 'Special'
     end
 
-    def standard_price
-      return @standard_price
-    end
-
-    def foil_price
-      return @foil_price
-    end
-
     def get_prices
-      return unless info
+      require "byebug"; byebug
+      return unless mtg_stocks_id
 
-      set = info.set_name.gsub( /[^\w\s]/, '' ).parameterize
-      card_name = name.gsub( /[^\w\s]/, '' ).parameterize
+      unless price_last_updated && (price_last_updated + 1.day < DateTime.now)
+        self.low_price, self.average_price, self.high_price, self.foil_price = Mtg::Stocks.card_price( mtg_stocks_id )
+        self.update( price_last_updated: DateTime.now )
+      end
+
+      return low_price, average_price, high_price, foil_price
     end
 
     def method_missing( method, *args, &block )
