@@ -137,8 +137,11 @@ def header2( value )
   puts
 end
 
-def data( header, value, primary_color )
-  puts Paint["┃ #{header + ' ' if header}", primary_color] + value
+def data( primary_color, hash )
+  max_length = hash.keys.max_by( &:length ).length
+  hash.each do |header, text|
+    puts Paint["┃ #{header.rjust( max_length ) + ' '}", primary_color] + text.to_s if text
+  end
 end
 
 def text( value, primary_color )
@@ -150,13 +153,16 @@ def display_card( card )
   r_primary, r_accent, r_text = rarity_colors( card )
 
   header1( card.name, primary, accent, text_color )
-  data( 'Mana Cost'.rjust( 10 ), symbols( card.mana_cost ), primary )
-  data( 'Image URL'.rjust( 10 ), card.image_url, primary )
-  data( 'Type'.rjust( 10 ), card.type, primary )
-  data( 'Rarity'.rjust( 10 ), Paint[card.rarity, r_primary, :bold], primary )
-  data( 'Set'.rjust( 10 ), (card.source || card.set_name), primary )
-  data( 'P/T'.rjust( 10 ), "#{card.power}/#{card.toughness}", primary ) if card.types.include?( "Creature" )
-  data( 'Loyalty'.rjust( 10 ), card.loyalty.to_s, primary ) if card.types.include?( "Planeswalker" )
+  data( primary, {
+    'Mana Cost' => symbols( card.mana_cost ),
+    'Image URL' => card.image_url,
+    'Artist' => card.artist,
+    'Type' => card.type,
+    'Rarity' => Paint[card.rarity, r_primary, :bold],
+    'Set' => (card.source || card.set_name),
+    'P/T' => "#{card.power}/#{card.toughness}",
+    'Loyalty' => card.loyalty
+  } )
 
   header2( 'Text' )
   symbols( card.text ).split( /\n/ ).each_with_index do |line, index|
@@ -177,12 +183,14 @@ def display_card( card )
   end
 
   header2( 'Metadata' )
-  data( 'ID'.rjust( 18 ), card.id, '90EE90' )
-  data( 'Multiverse ID'.rjust( 18 ), card.multiverse_id.to_s, '90EE90' )
-  data( 'Standard Quantity'.rjust( 18 ), card.standard_quantity.to_s, '90EE90' )
-  data( 'Foil Quantity'.rjust( 18 ), card.foil_quantity.to_s, '90EE90' )
-  data( 'Standard Price'.rjust( 18 ), (card.standard_price || 'Not Found').to_s, '90EE90' )
-  data( 'Foil Price'.rjust( 18 ), (card.foil_price || 'Not Found').to_s, '90EE90' )
+  data( '90EE90', {
+    'ID' => card.id,
+    'Multiverse ID' => card.multiverse_id,
+    'Standard Quantity' => card.standard_quantity,
+    'Foil Quantity' => card.foil_quantity,
+    'Standard Price' => (card.standard_price || 'Not Found'),
+    'Foil Price' => (card.foil_price || 'Not Found')
+  } )
 
   puts
 end
