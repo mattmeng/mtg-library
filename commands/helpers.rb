@@ -1,6 +1,7 @@
 require 'word_wrap'
 require 'word_wrap/core_ext'
 require 'paint'
+require 'tty/table'
 
 def screen( lines )
   yield
@@ -148,9 +149,24 @@ def text( value, primary_color )
   puts Paint["┃ #{value}", primary_color]
 end
 
+def check_card_price( card )
+  require "byebug"; byebug
+  unless card.mtg_stocks_id
+    id = PROMPT.ask(
+      "What is the mtgstocks.com card id for #{Paint[card.name, card_colors( card )[0]]}?",
+      convert: :int
+    ) {|q| q.validate /^\d+$/}
+    card.update( mtg_stocks_id: id )
+  end
+
+  card.get_prices
+end
+
 def display_card( card )
   primary, accent, text_color = card_colors( card )
   r_primary, r_accent, r_text = rarity_colors( card )
+
+  check_card_price( card )
 
   header1( card.name, primary, accent, text_color )
   data( primary, {
@@ -182,17 +198,23 @@ def display_card( card )
     end
   end
 
+  table = TTY::Table.new( header: ['Quality', 'Online', 'Library'] )
+  table << ['Low', card.low_price, (card.low_price * card.standard_quantity)]
+  table << ['Average', card.average_price, (card.average_price * card.standard_quantity)]
+  table << ['High', card.high_price, (card.high_price * card.standard_quantity)]
+  table << ['Foil', card.foil_price, (card.foil_price * card.foil_quantity)]
+
   header2( 'Metadata' )
   data( '90EE90', {
     'ID' => card.id,
     'Multiverse ID' => card.multiverse_id,
     'Standard Quantity' => card.standard_quantity,
-    'Foil Quantity' => card.foil_quantity,
-    'Low Price' => (card.low_price || 'Not Found'),
-    'Average Price' => (card.average_price || 'Not Found'),
-    'High Price' => (card.high_price || 'Not Found'),
-    'Foil Price' => (card.foil_price || 'Not Found')
+    'Foil Quantity' => card.foil_quantity
   } )
+  text( '', '90EE90' )
+  table.render( :unicode ).split( /\n/ ).each do |line|
+    text( line, '90EE90' )
+  end
 
   puts
 end

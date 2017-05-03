@@ -61,7 +61,6 @@ module Mtg
     end
 
     def get_prices
-      require "byebug"; byebug
       return unless mtg_stocks_id
 
       unless price_last_updated && (price_last_updated + 1.day < DateTime.now)
