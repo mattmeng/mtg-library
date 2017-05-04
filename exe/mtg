@@ -19,6 +19,7 @@ pre do |gopts, command, opts, args|
 end
 
 require_relative "../commands/helpers"
-require_relative "../commands/show"
+require_relative "../commands/card"
+require_relative "../commands/add"
 
 exit run( ARGV )

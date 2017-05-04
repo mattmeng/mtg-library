@@ -66,7 +66,7 @@ def card_colors( card )
   return ['006400', '329632', '000000'] if card.green?
 end
 
-def get_card( name )
+def get_card( identifier )
   spinner = TTY::Spinner.new(
     ":spinner Searching for cards...",
     format: :dots,
@@ -77,12 +77,12 @@ def get_card( name )
   cards = []
 
   spinner.auto_spin
-  card = Mtg::Card.find_by_id( name )
+  card = Mtg::Card.find_by_id( identifier )
   spinner.stop
 
-  if !card && name
+  if !card && identifier
     screen( 1 ) do
-      cards = Mtg::Card.find_all_by_name( name ) do |status, index, count|
+      cards = Mtg::Card.find_all_by_name( identifier ) do |status, index, count|
         case status
         when :searching
           spinner.auto_spin
@@ -151,10 +151,12 @@ end
 
 def check_card_price( card )
   unless card.mtg_stocks_id
-    id = PROMPT.ask(
-      "What is the mtgstocks.com card id for #{Paint[card.name, card_colors( card )[0]]}?",
-      convert: :int
-    ) {|q| q.validate /^\d+$/}
+    screen( 1 ) do
+      id = PROMPT.ask(
+        "What is the mtgstocks.com card id for #{Paint[card.name, card_colors( card )[0]]}?",
+        convert: :int
+      ) {|q| q.validate /^\d+$/}
+    end
     card.update( mtg_stocks_id: id )
   end
 
