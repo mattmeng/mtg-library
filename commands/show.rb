@@ -12,11 +12,13 @@ command :show do |c|
           {key: 'a', name: 'Add cards', value: :add},
           {key: 'r', name: 'Remove cards', value: :remove},
           {key: 'q', name: 'Quit', value: :quit}
-        ] )
+        ], default: 3 )
 
         case choice
         when :add
+          add_cards( card )
         when :remove
+          remove_cards( card )
         end
       else
         exit_now!( Paint["No cards found.", :red] )

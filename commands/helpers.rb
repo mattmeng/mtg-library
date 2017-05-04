@@ -150,7 +150,6 @@ def text( value, primary_color )
 end
 
 def check_card_price( card )
-  require "byebug"; byebug
   unless card.mtg_stocks_id
     id = PROMPT.ask(
       "What is the mtgstocks.com card id for #{Paint[card.name, card_colors( card )[0]]}?",
@@ -199,15 +198,17 @@ def display_card( card )
   end
 
   table = TTY::Table.new( header: ['Quality', 'Online', 'Library'] )
-  table << ['Low', card.low_price, (card.low_price * card.standard_quantity)]
-  table << ['Average', card.average_price, (card.average_price * card.standard_quantity)]
-  table << ['High', card.high_price, (card.high_price * card.standard_quantity)]
-  table << ['Foil', card.foil_price, (card.foil_price * card.foil_quantity)]
+  table << ['Low', card.low_price, (card.low_price * card.standard_quantity).round( 2 )]
+  table << ['Average', card.average_price, avg = (card.average_price * card.standard_quantity).round( 2 )]
+  table << ['High', card.high_price, (card.high_price * card.standard_quantity).round( 2 )]
+  table << ['Foil', card.foil_price, foil = (card.foil_price * card.foil_quantity).round( 2 )]
+  table << ['Total (Average)', '-', (avg + foil).round( 2 )]
 
   header2( 'Metadata' )
   data( '90EE90', {
     'ID' => card.id,
     'Multiverse ID' => card.multiverse_id,
+    'MTGStocks ID' => card.mtg_stocks_id,
     'Standard Quantity' => card.standard_quantity,
     'Foil Quantity' => card.foil_quantity
   } )
@@ -220,5 +221,39 @@ def display_card( card )
 end
 
 def add_cards( card )
+  card.standard_quantity = card.standard_quantity + PROMPT.ask(
+    "Add standard cards:",
+    default: 0,
+    convert: :int
+  )
 
+  card.foil_quantity = card.foil_quantity + PROMPT.ask(
+    "Add foil cards:",
+    default: 0,
+    convert: :int
+  )
+
+  card.save
+end
+
+def remove_cards( card )
+  if card.standard_quantity > 0
+    card.standard_quantity = PROMPT.slider(
+      "Set total standard cards:",
+      min: 0,
+      max: card.standard_quantity,
+      step: 1
+    )
+  end
+
+  if card.foil_quantity > 0
+    card.foil_quantity = PROMPT.slider(
+      "Set total foil cards:",
+      min: 0,
+      max: card.foil_quantity,
+      step: 1
+    )
+  end
+
+  card.save
 end

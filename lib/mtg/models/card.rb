@@ -61,7 +61,7 @@ module Mtg
     end
 
     def get_prices
-      return unless mtg_stocks_id
+      return nil, nil, nil, nil unless mtg_stocks_id
 
       unless price_last_updated && (price_last_updated + 1.day < DateTime.now)
         self.low_price, self.average_price, self.high_price, self.foil_price = Mtg::Stocks.card_price( mtg_stocks_id )
