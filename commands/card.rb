@@ -1,5 +1,5 @@
 desc 'Show card details including card data, text, rulings and metadata.'
-command :show do |c|
+command :card do |c|
   c.action do |gopts, opts, args|
     identifier = args.join( ' ' )
 
