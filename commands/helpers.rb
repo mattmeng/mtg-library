@@ -259,3 +259,33 @@ def remove_cards( card )
 
   card.save
 end
+
+def update_prices
+  screen( 1 ) do
+    cards = Mtg::Card.cards_with_price()
+    progress = TTY::ProgressBar.new(
+      ":bar Updating prices :current/:total",
+      total: cards.count,
+      width: 40,
+      complete: Paint[' ', nil, :green, :bright],
+      incomplete: Paint[' ', nil, :white]
+    )
+
+    cards.each do |card|
+      check_card_price( card )
+      progress.advance
+    end
+  end
+end
+
+def library_status
+  primary = '2196F3'
+  accent = '4FC3F7'
+  text_color = '000000'
+
+  header1( 'Library Status', primary, accent, text_color )
+  data( primary, {
+    'Mana Cost' => 'asdf',
+    'Image URL' => 'asdf'
+  } )
+end

@@ -21,5 +21,6 @@ end
 require_relative "../commands/helpers"
 require_relative "../commands/card"
 require_relative "../commands/add"
+require_relative "../commands/status"
 
 exit run( ARGV )
