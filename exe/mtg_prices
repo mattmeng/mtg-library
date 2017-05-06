@@ -1,0 +1,112 @@
+require 'mtg_sdk'
+require 'tty/progressbar'
+require 'tty/spinner'
+require 'net/http'
+require 'mtg/stocks'
+require 'paint'
+require 'mtg/library'
+
+database_path = ENV.fetch( "MTG_LIBRARY_PATH" ) { File.join( ENV["HOME"], "mtg_library.db" ) }
+db = Mtg::Database.new( database_path )
+
+spinner = TTY::Spinner.new(
+  ":spinner :title",
+  format: :dots,
+  hide_cursor: true,
+  success_mark: Paint['✔', :green]
+)
+spinner.update( title: "Finding upper limit..." )
+spinner.auto_spin
+
+# Find an upward bound for our binary search.
+last_unsuccessful_id = 1
+begin
+  last_unsuccessful_id *= 2
+  response = Net::HTTP.get_response( Mtg::Stocks::MTGSTOCKS_URL, "/cards/#{last_unsuccessful_id}" )
+end until response.code == '404'
+
+# Find the last valid card ID with a binary search of sorts.
+spinner.update( title: "Finding last valid card ID..." )
+last_successful_id = 1
+test_id = (last_successful_id + last_unsuccessful_id) / 2
+begin
+  response = Net::HTTP.get_response( Mtg::Stocks::MTGSTOCKS_URL, "/cards/#{test_id}" )
+
+  case response.code
+  when '200'
+    last_successful_id = test_id
+  when '404'
+    last_unsuccessful_id = test_id
+  end
+end until (test_id = (last_successful_id + last_unsuccessful_id) / 2) == last_successful_id
+spinner.update( title: 'Found last valid card ID!' )
+spinner.success
+
+progress = TTY::ProgressBar.new(
+  ":bar Getting card prices. :current/:total | elapsed: :elapsed | eta: :eta",
+  total: last_successful_id,
+  width: 40,
+  complete: Paint[' ', nil, :green, :bright],
+  incomplete: Paint[' ', nil, :white]
+)
+
+# Start getting card info and prices from MTGStocks.com.
+last_successful_id.times do |id|
+  id += 1
+  mtg_stocks_info = Mtg::Stocks.card_info( id )
+
+  if mtg_stocks_info
+    card = Mtg::Card.find_all_by_name(
+      mtg_stocks_info[:card_name],
+      lookup: false
+    )
+
+    if card
+      card.update(
+        low_price: mtg_stocks_info[:low_price],
+        average_price: mtg_stocks_info[:average_price],
+        high_price: mtg_stocks_info[:high_price],
+        foil_price: mtg_stocks_info[:foil_price],
+        price_last_updated: DateTime.now,
+        mtg_stocks_id: id,
+        tcg_id: mtg_stocks_info[:tcg_id]
+      )
+    else
+      card_info = MTG::Card.where(
+        name: mtg_stocks_info[:card_name],
+        set_name: mtg_stocks_info[:set_name]
+      ).where( orderBy: 'name' ).all
+
+      if card_info and card_info.count == 1
+        card_info = card_info.first
+        Mtg::Card.create(
+          id: card_info.id,
+          name: card_info.name,
+          low_price: mtg_stocks_info[:low_price],
+          average_price: mtg_stocks_info[:average_price],
+          high_price: mtg_stocks_info[:high_price],
+          foil_price: mtg_stocks_info[:foil_price],
+          price_last_updated: DateTime.now,
+          mtg_stocks_id: id,
+          tcg_id: mtg_stocks_info[:tcg_id]
+        )
+      end
+    end
+  end
+
+  progress.advance
+end
+
+spinner = TTY::Spinner.new(
+  ":spinner :title",
+  format: :dots,
+  hide_cursor: true,
+  success_mark: Paint['✔', :green]
+)
+spinner.update( title: "Exporting data..." )
+spinner.auto_spin
+
+# File.write( 'prices.rb', rtnval.inpsect )
+
+spinner.update( title: 'Data export complete!' )
+spinner.success

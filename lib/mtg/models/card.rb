@@ -64,7 +64,12 @@ module Mtg
       return nil, nil, nil, nil unless mtg_stocks_id
 
       if price_last_updated && (price_last_updated + 1.day < DateTime.now)
-        self.low_price, self.average_price, self.high_price, self.foil_price = Mtg::Stocks.card_price( mtg_stocks_id )
+        info = Mtg::Stocks.card_price( mtg_stocks_id )
+        self.low_price = info.low_price
+        self.average_price = info.average_price
+        self.high_price = info.high_price
+        self.foil_price = info.foil_price
+        self.tcg_id = info.tcg_id
         self.update( price_last_updated: DateTime.now )
       end
 
@@ -88,9 +93,17 @@ module Mtg
       return card
     end
 
-    def self.find_all_by_name( name )
+    def self.find_all_by_name( name, set_name: nil, lookup: true )
       yield( :searching ) if block_given?
-      card_infos = MTG::Card.where( name: name ).where( orderBy: 'name' ).all
+
+      params = {name: name}
+      params[:set_name] = set_name if set_name
+
+      if lookup
+        card_infos = MTG::Card.where( params ).where( orderBy: 'name' ).all
+      else
+        return Card.find( params )
+      end
 
       # Lookup or insert into database if necessary.
       cards = []

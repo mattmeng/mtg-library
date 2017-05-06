@@ -11,9 +11,11 @@ Sequel.migration do
       Float :foil_price, default: 0.0
       DateTime :price_last_updated, null: true
       Integer :mtg_stocks_id, null: true
+      Integer :tcg_id, null: true
       index :name
       index :price_last_updated
-      index :mtg_stocks_id
+      index :mtg_stocks_id, unique: true
+      index :tcg_id, unique: true
     end
   end
 end

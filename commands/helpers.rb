@@ -151,6 +151,7 @@ end
 
 def check_card_price( card )
   unless card.mtg_stocks_id
+    id = 0
     screen( 1 ) do
       id = PROMPT.ask(
         "What is the mtgstocks.com card id for #{Paint[card.name, card_colors( card )[0]]}?",
